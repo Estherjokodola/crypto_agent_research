@@ -150,7 +150,7 @@ No paid API required to run this tool.
 
 Built by **[Your Name]**
 - GitHub: [@Estherjokodola]([https://github.com/Estherjokodola])
-- LinkedIn: [your profile]([https://www.linkedin.com/in/esther-jokodola/])
+- LinkedIn: [Esther Jokodola]([https://www.linkedin.com/in/esther-jokodola/])
 
 ---
 
