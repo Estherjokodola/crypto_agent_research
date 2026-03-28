@@ -149,8 +149,8 @@ No paid API required to run this tool.
 ## 👤 Author
 
 Built by **[Your Name]**
-- GitHub: [@your_username](https://github.com/your_username)
-- LinkedIn: [your profile](https://linkedin.com/in/your_username)
+- GitHub: [@Estherjokodola]([https://github.com/Estherjokodola])
+- LinkedIn: [your profile]([https://www.linkedin.com/in/esther-jokodola/])
 
 ---
 
