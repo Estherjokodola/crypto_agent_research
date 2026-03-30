@@ -1,22 +1,7 @@
 # data_fetcher.py
 
-
-
 import time
 import requests
-
-# data_fetcher.py
-
-import time
-import requests
-
-try:
-    import streamlit as st
-    def cache(func):
-        return st.cache_data(ttl=300)(func)
-except ImportError:
-    def cache(func):
-        return func
 
 COINGECKO_BASE = "https://api.coingecko.com/api/v3"
 
@@ -25,51 +10,45 @@ HEADERS = {
     "Accept": "application/json",
 }
 
-@cache
 def get_coin_data(coin_id: str, retries: int = 3) -> dict:
-    # ... rest of function unchanged
-    """Fetch coin data with retry logic and proper headers."""
     url = f"{COINGECKO_BASE}/coins/{coin_id}"
     params = {
-        "localization":    "false",
-        "tickers":         "false",
-        "community_data":  "true",
-        "developer_data":  "true",
-        "sparkline":       "false",
+        "localization":   "false",
+        "tickers":        "false",
+        "community_data": "true",
+        "developer_data": "true",
+        "sparkline":      "false",
     }
 
     for attempt in range(retries):
         try:
-            response = requests.get(url, params=params, headers=HEADERS, timeout=15)
+            response = requests.get(url, params=params, headers=HEADERS, timeout=10)
 
-            # Rate limited — wait and retry
             if response.status_code == 429:
-                wait = 60 * (attempt + 1)
-                print(f"  Rate limited. Waiting {wait}s before retry {attempt+1}/{retries}...")
+                wait = 30 * (attempt + 1)
+                print(f"Rate limited. Waiting {wait}s...")
                 time.sleep(wait)
                 continue
 
-            # Coin not found
             if response.status_code == 404:
-                raise ValueError(f"Coin '{coin_id}' not found on CoinGecko. Check the ID.")
+                raise ValueError(f"Coin '{coin_id}' not found on CoinGecko.")
 
             response.raise_for_status()
             return response.json()
 
         except requests.exceptions.Timeout:
-            print(f"  Timeout on attempt {attempt+1}/{retries}. Retrying...")
-            time.sleep(10)
+            print(f"Timeout on attempt {attempt+1}/{retries}.")
+            time.sleep(5)
             continue
 
         except requests.exceptions.ConnectionError:
-            print(f"  Connection error on attempt {attempt+1}/{retries}. Retrying...")
-            time.sleep(15)
+            print(f"Connection error on attempt {attempt+1}/{retries}.")
+            time.sleep(10)
             continue
 
-    raise Exception(f"Failed to fetch data for '{coin_id}' after {retries} attempts.")
+    raise Exception(f"Failed to fetch '{coin_id}' after {retries} attempts.")
 
 def extract_signals(raw: dict) -> dict:
-    """Pull only the numbers we care about from the raw API response."""
     market = raw.get("market_data", {})
     dev    = raw.get("developer_data", {})
     comm   = raw.get("community_data", {})
@@ -85,14 +64,8 @@ def extract_signals(raw: dict) -> dict:
             market.get("total_volume", {}).get("usd", 0) /
             max(market.get("market_cap", {}).get("usd", 1), 1)
         ),
-        "github_commits_4w": dev.get("commit_count_4_weeks", 0),
-        "github_stars":      dev.get("stars", 0),
+        "github_commits_4w":  dev.get("commit_count_4_weeks", 0),
+        "github_stars":       dev.get("stars", 0),
         "reddit_subscribers": comm.get("reddit_subscribers", 0),
         "twitter_followers":  comm.get("twitter_followers", 0),
     }
-
-if __name__ == "__main__":
-    data    = get_coin_data("bitcoin")
-    signals = extract_signals(data)
-    for k, v in signals.items():
-        print(f"{k:30s} {v}")

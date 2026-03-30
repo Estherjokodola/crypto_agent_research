@@ -1,15 +1,13 @@
 # dashboard.py
 
 import streamlit as st
-from data_fetcher import get_coin_data, extract_signals
-from scorer import calculate_score
-from ai_analyzer import analyze_with_ai
 
-# Add this at the top of dashboard.py, just below the imports
-import streamlit as st
-
-@st.cache_data(ttl=300)  # cache results for 5 minutes
+@st.cache_data(ttl=300)
 def run_full_analysis(coin_id: str):
+    from data_fetcher import get_coin_data, extract_signals
+    from scorer import calculate_score
+    from ai_analyzer import analyze_with_ai
+
     raw        = get_coin_data(coin_id)
     signals    = extract_signals(raw)
     first_pass = calculate_score(signals)
@@ -65,31 +63,15 @@ with st.sidebar:
 
 # ── Main panel ───────────────────────────────────────────────────────
 if analyze_btn:
-    with st.spinner(f"Fetching data for {coin_id}..."):
-        # In dashboard.py — replace the existing try/except fetch block with this:
-
-        try:
-            raw     = get_coin_data(coin_id)
-            signals = extract_signals(raw)
-        except ValueError as e:
-            st.error(str(e))
-            st.stop()
-        except Exception as e:
-            st.error(
-                "Could not fetch data from CoinGecko. This is usually a rate limit "
-                "issue on Streamlit Cloud — wait 60 seconds and try again."
-            )
-            st.stop()
-
-    with st.spinner("Running analysis..."):
-        first_pass = calculate_score(signals)
-        ai         = analyze_with_ai(signals, first_pass["sub_scores"])
-
-        first_pass["sub_scores"]["tokenomics"]     = ai["tokenomics_score"]
-        first_pass["sub_scores"]["news_sentiment"] = ai["news_sentiment_score"]
-        final = calculate_score(signals, red_flags=ai["red_flags"])
-        final["sub_scores"]["tokenomics"]     = ai["tokenomics_score"]
-        final["sub_scores"]["news_sentiment"] = ai["news_sentiment_score"]
+    try:
+        with st.spinner(f"Analyzing {coin_id}..."):
+            signals, final, ai = run_full_analysis(coin_id)
+    except ValueError as e:
+        st.error(str(e))
+        st.stop()
+    except Exception as e:
+        st.error("Could not fetch data. Wait 60 seconds and try again.")
+        st.stop()
 
     # ── Coin header ──────────────────────────────────────────────────
     col_name, col_price, col_change, col_mcap = st.columns([2, 1.5, 1.5, 2])
