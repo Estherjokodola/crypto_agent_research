@@ -41,7 +41,7 @@ st.markdown("""
 
 # ── Header ───────────────────────────────────────────────────────────
 st.title("📊 Crypto Research Agent")
-st.caption("Short-term trading signals · Powered by CoinGecko + rule-based AI")
+st.caption("Short-term trading signals · Powered by CoinGecko + GROK AI")
 st.divider()
 
 # ── Sidebar — coin selector ──────────────────────────────────────────
