@@ -1,5 +1,11 @@
 # data_fetcher.py
 
+import streamlit as st
+
+@st.cache_data(ttl=300)   # cache for 5 minutes
+def get_coin_data(coin_id: str, retries: int = 3) -> dict:
+
+
 import time
 import requests
 

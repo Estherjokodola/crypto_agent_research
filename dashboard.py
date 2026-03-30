@@ -5,6 +5,24 @@ from data_fetcher import get_coin_data, extract_signals
 from scorer import calculate_score
 from ai_analyzer import analyze_with_ai
 
+# Add this at the top of dashboard.py, just below the imports
+import streamlit as st
+
+@st.cache_data(ttl=300)  # cache results for 5 minutes
+def run_full_analysis(coin_id: str):
+    raw        = get_coin_data(coin_id)
+    signals    = extract_signals(raw)
+    first_pass = calculate_score(signals)
+    ai         = analyze_with_ai(signals, first_pass["sub_scores"])
+
+    first_pass["sub_scores"]["tokenomics"]     = ai["tokenomics_score"]
+    first_pass["sub_scores"]["news_sentiment"] = ai["news_sentiment_score"]
+    final = calculate_score(signals, red_flags=ai["red_flags"])
+    final["sub_scores"]["tokenomics"]     = ai["tokenomics_score"]
+    final["sub_scores"]["news_sentiment"] = ai["news_sentiment_score"]
+
+    return signals, final, ai
+
 st.set_page_config(
     page_title="Crypto Research Agent",
     page_icon="📊",
