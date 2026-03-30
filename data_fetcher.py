@@ -1,13 +1,22 @@
 # data_fetcher.py
 
-import streamlit as st
-
-@st.cache_data(ttl=300)   # cache for 5 minutes
-def get_coin_data(coin_id: str, retries: int = 3) -> dict:
 
 
 import time
 import requests
+
+# data_fetcher.py
+
+import time
+import requests
+
+try:
+    import streamlit as st
+    def cache(func):
+        return st.cache_data(ttl=300)(func)
+except ImportError:
+    def cache(func):
+        return func
 
 COINGECKO_BASE = "https://api.coingecko.com/api/v3"
 
@@ -16,7 +25,9 @@ HEADERS = {
     "Accept": "application/json",
 }
 
+@cache
 def get_coin_data(coin_id: str, retries: int = 3) -> dict:
+    # ... rest of function unchanged
     """Fetch coin data with retry logic and proper headers."""
     url = f"{COINGECKO_BASE}/coins/{coin_id}"
     params = {
