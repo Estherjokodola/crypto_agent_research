@@ -48,11 +48,19 @@ with st.sidebar:
 # ── Main panel ───────────────────────────────────────────────────────
 if analyze_btn:
     with st.spinner(f"Fetching data for {coin_id}..."):
+        # In dashboard.py — replace the existing try/except fetch block with this:
+
         try:
             raw     = get_coin_data(coin_id)
             signals = extract_signals(raw)
+        except ValueError as e:
+            st.error(str(e))
+            st.stop()
         except Exception as e:
-            st.error(f"Could not fetch data for '{coin_id}'. Check the CoinGecko ID and try again.\n\n`{e}`")
+            st.error(
+                "Could not fetch data from CoinGecko. This is usually a rate limit "
+                "issue on Streamlit Cloud — wait 60 seconds and try again."
+            )
             st.stop()
 
     with st.spinner("Running analysis..."):

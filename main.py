@@ -60,6 +60,7 @@ def print_report(signals: dict, result: dict, ai: dict):
 
     print("\n" + "-" * 50)
 
+
 if __name__ == "__main__":
     coins = ["bitcoin", "ethereum", "solana"]
     for coin in coins:
